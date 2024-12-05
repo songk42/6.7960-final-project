@@ -11,7 +11,7 @@ from unet_pooling import DynamicPool3d
 
 
 class ConvolutionBlock(nn.Module):
-    def __init__(self, input, irreps_hidden, activation, irreps_sh, normalization,diameter,num_radial_basis,steps,dropout_prob,cutoff):
+    def __init__(self, input, irreps_hidden, activation, irreps_sh, normalization,diameter,num_radial_basis,steps,dropout_prob):
         super().__init__()
 
         if normalization == 'None':
@@ -63,7 +63,7 @@ class ConvolutionBlock(nn.Module):
 
 class Down(nn.Module):
 
-    def __init__(self, n_downsample,activation,irreps_sh,ne,no,BN,input,diameters,num_radial_basis,steps,down_op,scale,stride,dropout_prob,cutoff):
+    def __init__(self, n_downsample,activation,irreps_sh,ne,no,BN,input,diameters,num_radial_basis,steps,down_op,scale,dropout_prob):
         super().__init__()
 
         blocks = []
@@ -71,7 +71,7 @@ class Down(nn.Module):
 
         for n in range(n_downsample+1):
             irreps_hidden = Irreps(f"{4*ne}x0e + {4*no}x0o + {2*ne}x1e +  {2*no}x1o + {ne}x2e + {no}x2o").simplify()
-            block = ConvolutionBlock(input,irreps_hidden,activation,irreps_sh,BN, diameters[n],num_radial_basis,steps[n],dropout_prob,cutoff)
+            block = ConvolutionBlock(input,irreps_hidden,activation,irreps_sh,BN, diameters[n],num_radial_basis,steps[n],dropout_prob)
             blocks.append(block)
             self.down_irreps_out.append(block.irreps_out)
             input = block.irreps_out
@@ -94,12 +94,12 @@ class Down(nn.Module):
         return x
 
 class Up(nn.Module):
-    def __init__(self, n_blocks_up,activation,irreps_sh,ne,no,BN,downblock_irreps,diameters,num_radial_basis,steps,up_op,scale,stride,dropout_prob,scalar_upsampling,cutoff):
+    def __init__(self, n_blocks_up,activation,irreps_sh,ne,no,BN,downblock_irreps,diameters,num_radial_basis,steps,up_op,scale,dropout_prob,scalar_upsampling,):
         super().__init__()
 
         self.n_blocks_up = n_blocks_up
         #if up_op == 'lowpass':
-        #    self.upsamp    = LowPassFilter(scale,stride=stride,transposed=True,steps=steps)
+        #    self.upsamp    = LowPassFilter(scale,transposed=True,steps=steps)
         #else:
         #    self.upsamp = nn.Upsample(scale_factor=scale, mode='trilinear', align_corners=True)
 
@@ -112,13 +112,13 @@ class Up(nn.Module):
             else:
                 irreps_hidden = Irreps(f"{4*ne}x0e + {4*no}x0o + {2*ne}x1e + {ne}x2e + {2*no}x1o + {no}x2o").simplify()
 
-            block = ConvolutionBlock(downblock_irreps[::-1][n],irreps_hidden,activation,irreps_sh,BN,diameters[n],num_radial_basis,steps[n],dropout_prob,cutoff)
+            block = ConvolutionBlock(downblock_irreps[::-1][n],irreps_hidden,activation,irreps_sh,BN,diameters[n],num_radial_basis,steps[n],dropout_prob)
             blocks.append(block)
             ne //= 2
             no //= 2
 
             upsample_scale_factor = tuple([math.floor(scale[n]/step) if step < scale[n] else 1 for step in steps[n]]) #same as pooling kernel
-            upsample_op.append(nn.Upsample(scale_factor=upsample_scale_factor, mode='trilinear', align_corners=True))
+            upsample_op.append(nn.Upsample(scale_factor=upsample_scale_factor, mode='trilinear', align_corners=True))  # TODO this is what we need to change
 
         self.up_blocks = nn.ModuleList(blocks)
         self.upsample_ops = nn.ModuleList(upsample_op)
@@ -141,8 +141,8 @@ class Identity(nn.Module):
 
 class UNet(SegmentationNetwork):
     def __init__(self, input_irreps, output_irreps, diameter, num_radial_basis, steps, batch_norm='instance', n=2, n_downsample = 2, equivariance = 'SO3',
-        lmax = 2, down_op = 'maxpool3d', stride = 2, scale =2,
-        is_bias = True,scalar_upsampling=False,dropout_prob=0,cutoff=False):
+        lmax = 2, down_op = 'maxpool3d', scale =2,
+        is_bias = True,scalar_upsampling=False,dropout_prob=0):
         """Equivariant UNet with physical units
 
         Parameters
@@ -179,8 +179,6 @@ class UNet(SegmentationNetwork):
             type of downsampling operation
             can be 'maxpool3d', 'average' or 'lowpass'
             by default 'maxpool3d'
-        stride : int, optional
-            stride size, by default 2
         scale : int, optional
             size of pooling diameter
             in physical units, by default 2
@@ -190,8 +188,6 @@ class UNet(SegmentationNetwork):
             flag to use scalar_upsampling, by default False
         dropout_prob : float, optional
             dropout probability between 0 and 1.0, by default 0
-        cutoff: bool, optional
-            cutoff basis functions at 0 outside of [0,r], by default False
 
         """
         super().__init__()
@@ -240,10 +236,10 @@ class UNet(SegmentationNetwork):
             steps_array.append(tuple(output_steps))
 
 
-        self.down = Down(n_downsample,activation,irreps_sh,ne,no,batch_norm,input_irreps,diameters,num_radial_basis,steps_array,down_op,scales,stride,dropout_prob,cutoff)
+        self.down = Down(n_downsample,activation,irreps_sh,ne,no,batch_norm,input_irreps,diameters,num_radial_basis,steps_array,down_op,scales,dropout_prob)
         ne *= 2**(n_downsample-1)
         no *= 2**(n_downsample-1)
-        self.up = Up(n_downsample,activation,irreps_sh,ne,no,batch_norm,self.down.down_irreps_out,diameters[::-1][1:], num_radial_basis,steps_array[::-1][1:],up_op,scales[::-1],stride,dropout_prob,scalar_upsampling,cutoff)
+        self.up = Up(n_downsample,activation,irreps_sh,ne,no,batch_norm,self.down.down_irreps_out,diameters[::-1][1:], num_radial_basis,steps_array[::-1][1:],up_op,scales[::-1],dropout_prob,scalar_upsampling)
         self.out = Linear(self.up.up_blocks[-1].irreps_out, output_irreps)
 
         if is_bias:
