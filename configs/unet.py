@@ -17,11 +17,11 @@ def get_config() -> ml_collections.ConfigDict:
     config.unet.diameter=5.0
     config.unet.num_radial_basis=5
     config.unet.steps=(1, 1, 1)
-    config.unet.n=2
+    config.unet.n=8
     config.unet.n_downsample=3
     config.unet.batch_norm='instance'
     config.unet.equivariance = 'SO3'
-    config.unet.lmax = 2
+    config.unet.lmax = 1
     config.unet.down_op = 'maxpool3d'
     config.unet.scale = 2
     config.unet.is_bias = True

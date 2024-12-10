@@ -65,7 +65,7 @@ class ConvolutionBlock(nn.Module):
 
 class Down(nn.Module):
 
-    def __init__(self, n_downsample,activation,irreps_hidden,irreps_sh,ne,no,BN,input,diameters,num_radial_basis,steps,down_op,scale,dropout_prob):
+    def __init__(self, n_downsample,activation,irreps_sh,ne,no,BN,input,diameters,num_radial_basis,steps,down_op,scale,dropout_prob):
         super().__init__()
 
         blocks = []
@@ -74,7 +74,6 @@ class Down(nn.Module):
         for n in range(n_downsample+1):
             irreps_hidden = Irreps(f"{4*ne}x0e + {4*no}x0o + {2*ne}x1e +  {2*no}x1o + {ne}x2e + {no}x2o").simplify()
             block = ConvolutionBlock(input,irreps_hidden,activation,irreps_sh,BN, diameters[n],num_radial_basis,steps[n],dropout_prob)
-            # block = ConvolutionBlock(input,irreps_hidden[n],activation,irreps_sh,BN, diameters[n],num_radial_basis,steps[n],dropout_prob)
             blocks.append(block)
             self.down_irreps_out.append(block.irreps_out)
             input = block.irreps_out
@@ -97,13 +96,10 @@ class Down(nn.Module):
         return x
 
 class Up(nn.Module):
-    def __init__(self, n_downsample,activation,irreps_hidden,irreps_sh,ne,no,BN,downblock_irreps,diameters,num_radial_basis,steps,scale,min_rad, max_rad, n_radii, res_beta, res_alpha,dropout_prob):
+    def __init__(self, n_downsample,activation,irreps_sh,ne,no,BN,downblock_irreps,diameters,num_radial_basis,steps,scale,dropout_prob):
         '''we replace the upsample+conv combo with a deconvolution thingy'''
         super().__init__()
         self.n_blocks_up = n_downsample
-        self.n_radii = n_radii
-        self.radii = torch.linspace(min_rad, max_rad, n_radii)
-        self.to_s2grid = ToS2Grid(lmax = irreps_sh.lmax, res=(res_beta, res_alpha))
         # self.to_s2point = ToS2Point(
         #     lmax = irreps_sh.lmax,
         #     res=(res_beta, res_alpha),
@@ -119,17 +115,16 @@ class Up(nn.Module):
         self.scale_factors = []
         for n in range(self.n_blocks_up):
             irreps_in = downblock_irreps[n]
-            # irreps_hidden = self.irreps_hidden[n]
             irreps_hidden = Irreps(f"{4*ne}x0e + {4*no}x0o + {2*ne}x1e + {ne}x2e + {2*no}x1o + {no}x2o").simplify()
             conv = ConvolutionBlock(irreps_in,irreps_hidden,activation,irreps_sh,BN,diameters[n],num_radial_basis,steps[n],dropout_prob)
-            # lin = Linear(irreps_in, irreps_hidden)  # TODO try out convolution?
-            irreps_pos = Irreps("1x1e")
-            pos_linear = Linear(Irreps("1x1e"), irreps_pos)
+            irreps_pos = Irreps(f"{2*no}x1o + {2*ne}x1e")
+            if no == 0:
+                pos_linear = Linear(Irreps("1x1e"), irreps_pos)
+            else:
+                pos_linear = Linear(Irreps("1x1o"), irreps_pos)
             upsample_scale_factor = tuple([math.floor(scale[n]/step) if step < scale[n] else 1 for step in steps[n]]) #same as pooling kernel
             tp = e3nn.o3.experimental.FullTensorProductv2(irreps_hidden, irreps_pos)
-            # tp = e3nn.o3.experimental.FullTensorProductv2(irreps_hidden, irreps_pos, filter_ir_out=irreps_hidden)
             linear = Linear(tp.irreps_out, irreps_hidden)
-            # tp = FullyConnectedTensorProduct(irreps_hidden, Irreps("1x0e"), irreps_sh * irreps_hidden.dim)
             blocks.append(conv)
             blocks_pos.append(pos_linear)
             blocks_rebase.append(tp)
@@ -174,11 +169,12 @@ class Up(nn.Module):
         for n in range(self.n_blocks_up):
             x = self.up_blocks[n](x)
             vecs = self._get_vectors(x, self.scale_factors[n])
+            vecs_embedded = self.position_blocks[n](vecs.unsqueeze(0))
 
             upsample = nn.Upsample(scale_factor=self.scale_factors[n])
             x_upsampled = upsample(x)
             x = self.rebase_blocks[n](
-                torch.permute(x_upsampled, (0, 2, 3, 4, 1)), vecs.unsqueeze(0)
+                torch.permute(x_upsampled, (0, 2, 3, 4, 1)), vecs_embedded
             )
             x = self.rebase_blocks_linear[n](x).transpose(1, 4)
 
@@ -195,8 +191,7 @@ class Identity(nn.Module):
 class UNetDeconv(SegmentationNetwork):
     def __init__(
             self, 
-            input_irreps, 
-            hidden_irreps,
+            input_irreps,
             output_irreps, 
             diameter, 
             num_radial_basis, 
@@ -210,11 +205,6 @@ class UNetDeconv(SegmentationNetwork):
             scale,
             is_bias,
             dropout_prob,
-            min_rad,
-            max_rad,
-            n_radii,
-            res_beta,
-            res_alpha
             ):
         """Equivariant UNet with physical units
 
@@ -312,7 +302,6 @@ class UNetDeconv(SegmentationNetwork):
         self.down = Down(
             n_downsample,
             activation,
-            hidden_irreps[1:],
             irreps_sh,
             ne,
             no,
@@ -330,7 +319,6 @@ class UNetDeconv(SegmentationNetwork):
         self.up = Up(
             n_downsample,
             activation,
-            hidden_irreps[::-1][1:],
             irreps_sh,
             ne,
             no,
@@ -340,11 +328,6 @@ class UNetDeconv(SegmentationNetwork):
             num_radial_basis,
             steps_array[::-1][1:],
             scales[::-1],
-            min_rad,
-            max_rad,
-            n_radii,
-            res_beta,
-            res_alpha,
             dropout_prob
         )
         self.out = Linear(self.up.up_blocks[-1].irreps_out, output_irreps)
