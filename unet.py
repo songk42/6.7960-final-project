@@ -284,4 +284,7 @@ class UNet(SegmentationNetwork):
         
         x = x[..., pad[0]:, pad[1]:, pad[2]:]
 
+        x = x - torch.min(x)
+        x = x / torch.max(x)
+
         return x

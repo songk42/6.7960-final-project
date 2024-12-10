@@ -100,48 +100,47 @@ class Up(nn.Module):
     def __init__(self, n_downsample,activation,irreps_hidden,irreps_sh,ne,no,BN,downblock_irreps,diameters,num_radial_basis,steps,scale,min_rad, max_rad, n_radii, res_beta, res_alpha,dropout_prob):
         '''we replace the upsample+conv combo with a deconvolution thingy'''
         super().__init__()
-
         self.n_blocks_up = n_downsample
         self.n_radii = n_radii
         self.radii = torch.linspace(min_rad, max_rad, n_radii)
         self.to_s2grid = ToS2Grid(lmax = irreps_sh.lmax, res=(res_beta, res_alpha))
-        self.to_s2point = ToS2Point(
-            lmax = irreps_sh.lmax, 
-            res=(res_beta, res_alpha), 
-            dtype=torch.float32, 
-            normalization="integral",
-            device="cuda"
-        )
+        # self.to_s2point = ToS2Point(
+        #     lmax = irreps_sh.lmax,
+        #     res=(res_beta, res_alpha),
+        #     dtype=torch.float32,
+        #     normalization="integral",
+        #     device="cuda"
+        # )
         self.lmax = irreps_sh.lmax
-
-        self.irreps_hidden = irreps_hidden
         blocks = []
         blocks_pos = []
         blocks_rebase = []
+        blocks_rebase_linear = []
         self.scale_factors = []
-
         for n in range(self.n_blocks_up):
             irreps_in = downblock_irreps[n]
             # irreps_hidden = self.irreps_hidden[n]
             irreps_hidden = Irreps(f"{4*ne}x0e + {4*no}x0o + {2*ne}x1e + {ne}x2e + {2*no}x1o + {no}x2o").simplify()
             conv = ConvolutionBlock(irreps_in,irreps_hidden,activation,irreps_sh,BN,diameters[n],num_radial_basis,steps[n],dropout_prob)
             # lin = Linear(irreps_in, irreps_hidden)  # TODO try out convolution?
-            pos_linear = Linear(Irreps("1x1o"), Irreps("1x0e + 1x1o + 1x2e"))
+            irreps_pos = Irreps("1x1e")
+            pos_linear = Linear(Irreps("1x1e"), irreps_pos)
             upsample_scale_factor = tuple([math.floor(scale[n]/step) if step < scale[n] else 1 for step in steps[n]]) #same as pooling kernel
-            # TODO rn all terms are tensor producting with each other, but we want to keep voxels separate
-            tp = FullyConnectedTensorProduct(irreps_hidden, Irreps("1x0e + 1x1o + 1x2e"), irreps_hidden)
+            tp = e3nn.o3.experimental.FullTensorProductv2(irreps_hidden, irreps_pos)
+            # tp = e3nn.o3.experimental.FullTensorProductv2(irreps_hidden, irreps_pos, filter_ir_out=irreps_hidden)
+            linear = Linear(tp.irreps_out, irreps_hidden)
             # tp = FullyConnectedTensorProduct(irreps_hidden, Irreps("1x0e"), irreps_sh * irreps_hidden.dim)
             blocks.append(conv)
             blocks_pos.append(pos_linear)
             blocks_rebase.append(tp)
+            blocks_rebase_linear.append(linear)
             self.scale_factors.append(upsample_scale_factor)
-            
             ne //= 2
             no //= 2
-
         self.up_blocks = nn.ModuleList(blocks)
         self.position_blocks = nn.ModuleList(blocks_pos)
         self.rebase_blocks = nn.ModuleList(blocks_rebase)
+        self.rebase_blocks_linear = nn.ModuleList(blocks_rebase_linear)
 
     
     def _coarse_to_fine(self, x, scale_factor):
@@ -157,15 +156,14 @@ class Up(nn.Module):
         ], axis=-1)
         return ndx_new[0,0,]
     
-    def _get_radii_and_angles(self, x, scale_factor):
+    def _get_vectors(self, x, scale_factor):
         ndx_centers = self._coarse_to_fine(x, scale_factor)
         shape_3d = torch.tensor(ndx_centers.shape[:-1], device=x.device)
         ndx = torch.tensor(
             [[[[i, j, k] for i in range(shape_3d[0])] for j in range(shape_3d[1])] for k in range(shape_3d[2])]
         ).to(x.device)
         vecs = ndx - ndx_centers
-        alphas, betas = xyz_to_angles(vecs)
-        return vecs, torch.norm(vecs, dim=-1), alphas, betas
+        return vecs
     
     def _get_closest(self, x, arr):
         '''get the index of the closest value in arr to x'''
@@ -175,50 +173,14 @@ class Up(nn.Module):
     def forward(self, x):
         for n in range(self.n_blocks_up):
             x = self.up_blocks[n](x)
-            # x = self.up_blocks[n](x.transpose(1, 4)).transpose(1, 4)
-            vecs, radii, alphas, betas = self._get_radii_and_angles(x, self.scale_factors[n])
-            # radii = radii.unsqueeze(0)
+            vecs = self._get_vectors(x, self.scale_factors[n])
 
             upsample = nn.Upsample(scale_factor=self.scale_factors[n])
             x_upsampled = upsample(x)
-            vecs_embed = self.position_blocks[n](vecs)
-            print(x[0, 0])
-            x = self.rebase_blocks[n](x_upsampled.transpose(1, 4), vecs_embed.unsqueeze(0)).transpose(1, 4)
-            # # x_sh = self.rebase_blocks[n](x_upsampled.transpose(1, 4), radii.unsqueeze(-1))
-            # print("sh", x_sh.shape)
-
-            # # alpha_ndx = torch.vmap(
-            # #     lambda a: self._get_closest(a, self.to_s2grid.alphas)
-            # # )(alphas.flatten()).reshape(alphas.shape)
-            # # beta_ndx = torch.vmap(
-            # #     lambda a: self._get_closest(a, self.to_s2grid.betas)
-            # # )(betas.flatten()).reshape(betas.shape)
-
-            # def f(voxel, vec):
-            #     x_grid = self.to_s2point(
-            #         voxel.reshape((*voxel.shape[:-1], -1, (self.lmax + 1)**2)),
-            #         vec,
-            #     )
-            #     # x_grid = self.to_s2grid(voxel.reshape((*voxel.shape[:-1], -1, (self.lmax + 1)**2)))  # [..., res_beta, res_alpha]
-            #     return x_grid.squeeze()
-            # # def g(grid):
-            # #     out = torch.zeros(grid.shape[:3] + (self.irreps_hidden[n].dim,), device=grid.device)
-            # #     for i in range(grid.shape[0]):
-            # #         for j in range(grid.shape[1]):
-            # #             for k in range(grid.shape[2]):
-            # #                 out[i,j,k] = f(grid[i,j,k:k+1], vecs[i,j,k])
-            # #     return out
-
-            # print("voxel shape:", (*x_sh[0,0,0,0].shape[:-1], -1, (self.lmax + 1)**2))
-            # x = torch.vmap(
-            #     lambda square, vec_square: torch.vmap(
-            #         lambda row, vec_row: torch.vmap(
-            #             lambda voxel, vec: f(voxel, vec))(row, vec_row)
-            #     )(square, vec_square)
-            # )(x_sh[0], vecs).unsqueeze(0)
-            # # print(x_sh.shape)
-            # # x = g(x_sh[0]).unsqueeze(0)
-            # print(x.shape)
+            x = self.rebase_blocks[n](
+                torch.permute(x_upsampled, (0, 2, 3, 4, 1)), vecs.unsqueeze(0)
+            )
+            x = self.rebase_blocks_linear[n](x).transpose(1, 4)
 
         return x
 
@@ -428,5 +390,8 @@ class UNetDeconv(SegmentationNetwork):
             x = torch.cat([x[:, :self.n_classes_scalar,...] + bias, x[:, self.n_classes_scalar:,...]], dim=1)
         
         x = x[..., pad[0]:, pad[1]:, pad[2]:]
+
+        x = x - torch.min(x)
+        x = x / torch.max(x)
 
         return x
