@@ -237,16 +237,20 @@
 			/* Optional: Adds space between the div and the paragraph */
 		}
 
-		.h1 {
+		h1 {
 			font-size: 18px;
 		}
 
-		.h2 {
+		h2 {
 			font-size: 16px;
 		}
 
-		.h3 {
+		h3 {
 			font-size: 14px;
+		}
+
+		img {
+			max-width: 560px;
 		}
 	</style>
 
@@ -334,23 +338,20 @@
 			<h1 id="background">Background</h1>
 			<p>We will be building off of code the paper <em>Leveraging
 					SO(3)-steerable convolutions for pose-robust semantic segmentation in 3D
-					medical data</em> <span class="citation" data-cites="e3nn_medical"></span>, which creates an SO(3)
+					medical data</em> [4], which creates an SO(3)
 				equivariant
 				segmentation network applied to voxelized 3D medical imaging data. This
 				theoretical framework and accompanying code are built on previous work
-				including <em><code>e3nn</code>: Euclidean Neural Networks</em><span class="citation"
-					data-cites="geiger2022e3nn"></span>, <em>Group
-					equivariant convolutional networks</em><span class="citation" data-cites="cohen2016group"></span>
+				including <em><code>e3nn</code>: Euclidean Neural Networks</em>[5], <em>Group
+					equivariant convolutional networks</em>[3]</span>
 				and <em>3D
 					steerable CNNs: Learning
-					rotationally equivariant features in volumetric data</em><span class="citation"
-					data-cites="weiler2018steerable"></span>.</p>
+					rotationally equivariant features in volumetric data</em>[2].</p>
 			<h2 id="introduction-to-group-representations-and-equivariance">Introduction
 				to Group Representations and Equivariance</h2>
 			<p>We will give an introduction to <em>group theory</em>, the
 				mathematical foundation for incorporating symmetries in neural networks
-				from <em><code>e3nn</code>: Euclidean Neural Networks</em><span class="citation"
-					data-cites="geiger2022e3nn"></span>. A group is a
+				from <em><code>e3nn</code>: Euclidean Neural Networks</em>[5]. A group is a
 				mathematical structure that defines a set of elements and operations
 				(e.g., rotations, reflections, translations) that obey associativity,
 				have an identity element, and allow inverses. The relevant group for 3D
@@ -392,7 +393,7 @@
 			<p>For neural networks, this means that all layers, including
 				convolutions, activations, and pooling operations, must respect this
 				property to ensure the model captures symmetries inherent in the data.
-				The <code>e3nn</code> library <span class="citation" data-cites="geiger2022e3nn"></span> implements this
+				The <code>e3nn</code> library [5] implements this
 				by
 				designing network
 				components, such as steerable convolutions, that operate on irreps of
@@ -431,8 +432,7 @@
 					nonlinearities</em>, where scalar features gate higher-order features
 				(e.g., vector and tensor irreps). For pooling, instance normalization is
 				applied, and max-pooling selects features based on their <span
-					class="math inline">ℓ<sup>2</sup></span>-norm <span class="citation"
-					data-cites="cesa2021en"></span>. This combination of techniques ensures
+					class="math inline">ℓ<sup>2</sup></span>-norm [2]. This combination of techniques ensures
 				that equivariant features are efficiently compressed while retaining
 				their rotational robustness.</p>
 			<h1 id="related-works">Related Works</h1>
@@ -448,7 +448,7 @@
 			<p>The study <em>Leveraging SO(3)-steerable convolutions for pose-robust
 					semantic segmentation in 3D medical data</em> introduces spherical
 				harmonic-based convolutional kernels that achieve rotational
-				equivariance <span class="citation" data-cites="e3nn_medical"></span>.
+				equivariance [4].
 				These layers improve parameter efficiency, robustness to unseen poses,
 				and reduce reliance on data augmentation. Their success in MRI
 				segmentation tasks informed the architecture of our symmetric
@@ -459,7 +459,7 @@
 			<p><em>Ophiuchus: Scalable Modeling of Protein Structures through
 					Hierarchical Coarse-graining SO(3)-Equivariant Autoencoders</em>
 				demonstrates the utility of symmetry-aware autoencoders for hierarchical
-				coarse-graining of protein structures <span class="citation" data-cites="ophiuchus"></span>. The model
+				coarse-graining of protein structures [6]. The model
 				leverages
 				<span class="math inline"><em>S</em><em>O</em>(3)</span>-equivariant layers to
 				encode local geometric features efficiently. Inspired by this, we
@@ -470,8 +470,7 @@
 				Molecular and Materials Science</h2>
 			<p>Autoencoders have recently been applied in molecular and materials
 				science for tasks such as molecular design, property prediction, and
-				efficient sampling. Prior work<span class="citation"
-					data-cites="nature_materials chem_comm arxiv_2022"></span> has
+				efficient sampling. Prior work[1] has
 				demonstrated their ability to encode molecular data into compact latent
 				spaces, enabling efficient simulations and analyses.</p>
 			<p>Our work extends these efforts by examining the geometric properties
@@ -494,7 +493,7 @@
 			<p>created deconvolution for equivariant upsampling, outputting irreps,
 				spherical harmonics and radial information.</p>
 			<p>For our experiments, we use the SO(3)-equivariant UNet model
-				developed by Diaz et al. <span class="citation" data-cites="e3nn_medical"></span> as our base model.
+				developed by Diaz et al. [4] as our base model.
 				While the
 				original
 				UNet model is a residual model, we convert it to a non-residual
@@ -509,11 +508,11 @@
 			<p>For comparison, we implement a more expressive equivariant
 				deconvolution method as shown in figure 1.</p>
 			<p>Given a 3D input, we begin with the same convolution block as
-				described in Diaz et al. <span class="citation" data-cites="e3nn_medical"></span>. Then, to upscale, we
+				described in Diaz et al. [4]. Then, to upscale, we
 				first encode
 				the
 				relative vectors from each original voxel to the new voxels occupying
-				the analogous space in the output data. Then, we take the full tensor
+				the analogous space in the output data (this is the same voxel assignment as is done in the original upscaling). Then, we take the full tensor
 				product of the convolution output with the position data, and pass it
 				through an equivariant linear layer.</p>
 		</div>
@@ -557,28 +556,45 @@
 			</ol>
 			<p>Each model was trained for 5000 epochs, and the training loss,
 				measured as the mean squared error (MSE), was tracked and plotted to
-				monitor learning progress. PIC OF LOSS Curves (on 1000). INCLUDE
+				monitor learning progress.INCLUDE
 				Reconstructions from 5000 folder for all models (minus noise).</p>
+			<div style="display:flex; flex-direction:row">
+				<img src="images/Unet checker.png"/>
+				<img src="images/Unet stripe.png"/>
+			</div>
+			<div style="display:flex; flex-direction:row">
+				<img src="images/Deconv checker.png"/>
+				<img src="images/Deconv stripe.png"/>
+			</div>
 			<h2 id="evaluation">Evaluation</h2>
 			<p><strong>Reconstruction Accuracy:</strong> The trained models were
 				evaluated on their ability to reconstruct the original, rotated, and
 				noisy patterns. Reconstruction errors were computed as the mean squared
-				error between the input and the reconstructed patterns. PIC OF
-				RECONSTRUCTION LOSS <strong>SO(3) Equivariance Error:</strong> To
+				error between the input and the reconstructed patterns. 
+				<img src="images/reconstruction_loss.png"/>
+				<strong>SO(3) Equivariance Error:</strong> To
 				quantify the symmetry-preserving properties of the models, we computed
 				the SO(3) equivariance error using rotated datasets. This error measured
 				the discrepancy between the model’s outputs for original and rotated
 				inputs, normalized by the output’s magnitude.</p>
 			<p><strong>Visualization of Results:</strong> Reconstruction errors and
 				SO(3) equivariance errors were visualized as bar plots to enable a
-				direct comparison across models and datasets. PIC OF EQUIVARIANCE
-				LOSS</p>
+				direct comparison across models and datasets.</p>
+			<img src="images/Equivariance error.png">
 			<h2 id="latent-space-analysis">Latent Space Analysis</h2>
 			<p>To examine how the models encode geometric features, we performed a
 				Principal Component Analysis (PCA) on the bottleneck (latent space)
 				representations. Scatter plots of the first two principal components
 				were generated to visualize clustering behavior for different patterns
-				(striped vs. checkerboard). PIC OF PCAs</p>
+				(striped vs. checkerboard).</p>
+			<div style="display:flex; flex-direction:row">
+				<img src="images/PCA_Unet_stripes.png"/>
+				<img src="images/PCA_Deconv_stripes.png"/>
+			</div>
+			<div style="display:flex; flex-direction:row">
+				<img src="images/PCA_Unet_checker.png"/>
+				<img src="images/PCA_Deconv_checkers.png"/>
+			</div>
 			<h2 id="noise-sensitivity-analysis">Noise Sensitivity Analysis</h2>
 			<p>In addition to evaluating reconstruction and equivariance properties,
 				we conducted a noise sensitivity analysis to compare the robustness of
@@ -687,7 +703,7 @@
 					Structures through Hierarchical
 					Coarse-graining SO(3)-Equivariant Autoencoders. 2023. arXiv: 2310.02508 [cs.LG]. url: https://
 					arxiv.org/abs/2310.02508. <br/>
-					<a id="ref_7"></a>[7] Wujie Wang and Rafael G´omez-Bombarelli. “Coarse-graining auto-encoders for
+					<a id="ref_7"></a>[7] Wujie Wang and Rafael Gomez-Bombarelli. “Coarse-graining auto-encoders for
 					molecular dynamics”.
 					In: Nature Materials (2019). Available: https://doi.org/10.1038/s41524-019-0261-5. <br/>
 					<a id="ref_8"></a>[8] Wujie Wang et al. “Generative Coarse-Graining of Molecular Conformations”. In:
