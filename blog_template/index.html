@@ -559,8 +559,7 @@
 			</ol>
 			<p>Each model was trained for 5000 epochs, and the training loss,
 				measured as the mean squared error (MSE), was tracked and plotted to
-				monitor learning progress.INCLUDE
-				Reconstructions from 5000 folder for all models (minus noise).</p>
+				monitor learning progress.</p>
 			<div><div style="display:flex; flex-direction:row">
 				<img src="images/Unet checker.png"/>
 				<img src="images/Unet stripe.png"/>
@@ -570,9 +569,9 @@
 				<img src="images/Deconv stripe.png"/>
 			</div></div>
 
-		<div class="margin-right-block">
-			Fig. 3: Loss curves for each combination of deconvolver and pattern type over 1000 epochs.
-		</div>
+			<div class="margin-right-block">
+				Fig. 3: Loss curves for each combination of deconvolver and pattern type over 1000 epochs.
+			</div>
 			<h2 id="evaluation">Evaluation</h2>
 			<p><strong>Reconstruction Accuracy:</strong> The trained models were
 				evaluated on their ability to reconstruct the original, rotated, and
@@ -629,8 +628,17 @@
 				checkerboard datasets. The noisy datasets were fed into the trained
 				Vanilla UNet and Equivariant DeconvUNet models. Reconstruction
 				performance was evaluated by computing the mean squared error (MSE)
-				between the noisy input and the reconstructed output. PIC OF Gaussian
-				and SP reconstructions LOSS</p>
+				between the noisy input and the reconstructed output.</p>
+		</div>
+		<div class="margin-right-block">
+		</div>
+	</div>
+
+	<div class="content-margin-container" id="results">
+		<div class="margin-left-block">
+		</div>
+		<div class="main-content-block">
+			
 		</div>
 		<div class="margin-right-block">
 		</div>
@@ -644,7 +652,7 @@
 			<h2 id="reconstruction-performance">Reconstruction Performance</h2>
 			<p>The reconstruction loss for the four models—Vanilla UNet and Deconv
 				UNet trained on striped and checkerboard patterns—was evaluated. The
-				results, as shown in Figure X, indicate that the Vanilla UNet performs
+				results, as shown in Figure 3, indicate that the Vanilla UNet performs
 				better compared to the Deconv UNet on the striped dataset and similarly
 				on checkerboard patterns.</p>
 			<p>Notably, the checkerboard patterns posed a greater challenge for both
@@ -662,7 +670,7 @@
 				rotational symmetry plays a critical role.</p>
 			<h2 id="latent-space-analysis-1">Latent Space Analysis</h2>
 			<p>We plot the PCA of latent spaces for the different models and
-				patterns (FIG ABOVE or here?). The Deconv UNet latent space exhibited a
+				patterns in Figure 5. The Deconv UNet latent space exhibited a
 				more sparse, cross-like distribution, potentially indicating a
 				preference for disentangling symmetries. In contrast, the Vanilla UNet
 				latent space was denser and less structured. Checkerboard patterns led
@@ -682,9 +690,11 @@
 				may be more expressive in representing complex patterns though it is not clear. Future work could
 				continue our analysis and explore the application of these models to real-world datasets, such as
 				molecular or material simulations, where symmetry plays a critical role.</p>
-			<div class="margin-right-block">
-			</div>
+			
 		</div>
+		<div class="margin-right-block">
+		</div>
+	</div>
 
 
 		<div class="content-margin-container" id="citations">
