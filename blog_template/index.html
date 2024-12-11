@@ -534,10 +534,13 @@
 				properties, with rotations of 45 degrees applied in the XY-plane. Noisy
 				versions of both datasets were also generated to test model
 				robustness.</p>
-			<figure>
-				<img src="" style="height:5cm" />
-			</figure>
-			<img src="images/">
+			<div style="display:flex; flex-direction:row">
+				<img src="images/x stripe.png">
+				<img src="images/checker.png">
+			</div>
+			<div class="margin-right-block">
+				Fig. 2: Stripe and checker voxel datasets.
+			</div>
 			<h2 id="training-setup">Training Setup</h2>
 			<p>We trained four models on these datasets:</p>
 			<ol>
@@ -558,14 +561,18 @@
 				measured as the mean squared error (MSE), was tracked and plotted to
 				monitor learning progress.INCLUDE
 				Reconstructions from 5000 folder for all models (minus noise).</p>
-			<div style="display:flex; flex-direction:row">
+			<div><div style="display:flex; flex-direction:row">
 				<img src="images/Unet checker.png"/>
 				<img src="images/Unet stripe.png"/>
 			</div>
 			<div style="display:flex; flex-direction:row">
 				<img src="images/Deconv checker.png"/>
 				<img src="images/Deconv stripe.png"/>
-			</div>
+			</div></div>
+
+		<div class="margin-right-block">
+			Fig. 3: Loss curves for each combination of deconvolver and pattern type over 1000 epochs.
+		</div>
 			<h2 id="evaluation">Evaluation</h2>
 			<p><strong>Reconstruction Accuracy:</strong> The trained models were
 				evaluated on their ability to reconstruct the original, rotated, and
@@ -587,13 +594,16 @@
 				representations. Scatter plots of the first two principal components
 				were generated to visualize clustering behavior for different patterns
 				(striped vs. checkerboard).</p>
-			<div style="display:flex; flex-direction:row">
+			<div><div style="display:flex; flex-direction:row">
 				<img src="images/PCA_Unet_stripes.png"/>
 				<img src="images/PCA_Deconv_stripes.png"/>
 			</div>
 			<div style="display:flex; flex-direction:row">
 				<img src="images/PCA_Unet_checker.png"/>
 				<img src="images/PCA_Deconv_checkers.png"/>
+			</div>
+			<div class="margin-right-block">
+				Fig. 5: PCA plots of latent spaces for each model and pattern type.
 			</div>
 			<h2 id="noise-sensitivity-analysis">Noise Sensitivity Analysis</h2>
 			<p>In addition to evaluating reconstruction and equivariance properties,
