@@ -117,7 +117,7 @@ class Up(nn.Module):
             irreps_in = downblock_irreps[n]
             irreps_hidden = Irreps(f"{4*ne}x0e + {4*no}x0o + {2*ne}x1e + {ne}x2e + {2*no}x1o + {no}x2o").simplify()
             conv = ConvolutionBlock(irreps_in,irreps_hidden,activation,irreps_sh,BN,diameters[n],num_radial_basis,steps[n],dropout_prob)
-            irreps_pos = Irreps(f"{2*no}x1o + {2*ne}x1e")
+            irreps_pos = Irreps(f"1x1o + 1x1e")
             if no == 0:
                 pos_linear = Linear(Irreps("1x1e"), irreps_pos)
             else:
@@ -136,27 +136,29 @@ class Up(nn.Module):
         self.position_blocks = nn.ModuleList(blocks_pos)
         self.rebase_blocks = nn.ModuleList(blocks_rebase)
         self.rebase_blocks_linear = nn.ModuleList(blocks_rebase_linear)
+    
+
+    def _get_indices(self, shape):
+        return torch.tensor(
+            [[[[i, j, k] for k in range(shape[2])] for j in range(shape[1])] for i in range(shape[0])]
+        )
 
     
     def _coarse_to_fine(self, x, scale_factor):
         '''upsample x by scale_factor, return indices'''
         shape_3d = torch.tensor(x.shape[-3:], device=x.device)
-        ndx_3d = torch.tensor(
-            [[[[i, j, k] for i in range(shape_3d[0])] for j in range(shape_3d[1])] for k in range(shape_3d[2])]
-        ).to(x.device)
+        ndx_3d = self._get_indices(shape_3d).to(x.device)
+        ndx_recentered = (ndx_3d + (shape_3d // 2).reshape(1, 1, 1, 3)).reshape(1, 1, *shape_3d, 3)
         upsample = nn.Upsample(scale_factor=scale_factor)
-        ndx_shifted = (ndx_3d + (shape_3d // 2).reshape(1, 1, 1, 3)).reshape(1, 1, *shape_3d, 3)
         ndx_new = torch.concat([
-            (upsample(ndx_shifted[:, :, :, :, :, i].float())).unsqueeze(-1) for i in range(3)
+            (upsample(ndx_recentered[:, :, :, :, :, i].float())).unsqueeze(-1) for i in range(ndx_recentered.shape[-1])
         ], axis=-1)
         return ndx_new[0,0,]
     
     def _get_vectors(self, x, scale_factor):
         ndx_centers = self._coarse_to_fine(x, scale_factor)
         shape_3d = torch.tensor(ndx_centers.shape[:-1], device=x.device)
-        ndx = torch.tensor(
-            [[[[i, j, k] for i in range(shape_3d[0])] for j in range(shape_3d[1])] for k in range(shape_3d[2])]
-        ).to(x.device)
+        ndx = self._get_indices(shape_3d).to(x.device)
         vecs = ndx - ndx_centers
         return vecs
     
