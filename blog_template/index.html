@@ -236,10 +236,22 @@
 			width: 50px;
 			/* Optional: Adds space between the div and the paragraph */
 		}
+
+		.h1 {
+			font-size: 18px;
+		}
+
+		.h2 {
+			font-size: 16px;
+		}
+
+		.h3 {
+			font-size: 14px;
+		}
 	</style>
 
-	<title>The Platonic Representation Hypothesis</title>
-	<meta property="og:title" content="The Platonic Representation Hypothesis" />
+	<title>Exploring Symmetry-Equivariant Autoencoders for 3D Voxel Pattern Analysis</title>
+	<meta property="og:title" content="Exploring Symmetry-Equivariant Autoencoders for 3D Voxel Pattern Analysis" />
 	<meta charset="UTF-8">
 </head>
 
@@ -254,15 +266,15 @@
 					<td colspan=4>
 						<span
 							style="font-size: 32px; font-family: 'Courier New', Courier, monospace; /* Adds fallbacks */">A
-							Grand Unified Theory of Deep Learning</span>
+							Exploring Symmetry-Equivariant Autoencoders for 3D Voxel Pattern Analysis</span>
 					</td>
 				</tr>
 				<tr>
 					<td align=left>
-						<span style="font-size:17px"><a href="your_website">Your name</a></span>
+						<span style="font-size:17px"><a href="your_website">Giulianna Hashemi-Asasi</a></span>
 					</td>
 					<td align=left>
-						<span style="font-size:17px"><a href="your_partner's_website">Your partner's name</a></span>
+						<span style="font-size:17px"><a href="your_partner's_website">Song Kim</a></span>
 					</td>
 				<tr>
 					<td colspan=4 align=left><span style="font-size:18px">Final project for 6.7960, MIT</span></td>
@@ -270,25 +282,6 @@
 			</table>
 		</div>
 		<div class="margin-right-block">
-		</div>
-	</div>
-
-	<div class="content-margin-container" id="intro">
-		<div class="margin-left-block">
-			<!-- table of contents here -->
-			<div style="position:fixed; max-width:inherit; top:max(20%,120px)">
-				<b style="font-size:16px">Outline</b><br><br>
-				<a href="#intro">Introduction</a><br><br>
-				<a href="#does_x_do_y">Does X do Y?</a><br><br>
-				<a href="#implications_and_limitations">Implications and limitations</a><br><br>
-			</div>
-		</div>
-		<div class="main-content-block">
-			<!--You can embed an image like this:-->
-			<img src="./images/your_image_here.png" width=512px />
-		</div>
-		<div class="margin-right-block">
-			Caption for the image.
 		</div>
 	</div>
 
@@ -506,15 +499,15 @@
 				original
 				UNet model is a residual model, we convert it to a non-residual
 				autoencoder by removing skip connections. The UNet architecture is shown
-				in [FIGURE]</p>
-			<p>[INSERT UNET FIGURE HERE]</p>
+				in Figure 1.</p>
+			<img src="images/model_diagram.png">
 			<h2 id="deconvolution">Deconvolution</h2>
 			<p>In its decoding layers, vanilla UNet upsamples the data at each step
 				by doubling each dimension of the data and expanding the contents of
 				each voxel into a 2x2x2 region, per the standard implementation in
 				PyTorch.</p>
 			<p>For comparison, we implement a more expressive equivariant
-				deconvolution method as shown in figure [MODEL FIGURE NUMBER].</p>
+				deconvolution method as shown in figure 1.</p>
 			<p>Given a 3D input, we begin with the same convolution block as
 				described in Diaz et al. <span class="citation" data-cites="e3nn_medical"></span>. Then, to upscale, we
 				first encode
@@ -525,7 +518,7 @@
 				through an equivariant linear layer.</p>
 		</div>
 		<div class="margin-right-block">
-			A caption for the video could go here.
+			Fig. 1: Diagram of autoencoder UNet's architecture. Both "vanilla UNet" and "deconv UNet" have roughly the same architecture, but with different decoder blocks.
 		</div>
 	</div>
 
@@ -545,7 +538,7 @@
 			<figure>
 				<img src="" style="height:5cm" />
 			</figure>
-			<p>PIC OF VOXELS</p>
+			<img src="images/">
 			<h2 id="training-setup">Training Setup</h2>
 			<p>We trained four models on these datasets:</p>
 			<ol>
