@@ -1,331 +1,715 @@
 <html>
+
 <head>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 
-<link rel="shortcut icon" href="images/icon.ico">
-<style type="text/css">
-	body {
-		background-color: #f5f9ff;
-	}
+	<link rel="shortcut icon" href="images/icon.ico">
+	<style type="text/css">
+		body {
+			background-color: #f5f9ff;
+		}
 
-	/* Hide both math displays initially, will display based on JS detection */
-  .mathjax-mobile, .mathml-non-mobile { display: none; }
+		/* Hide both math displays initially, will display based on JS detection */
+		.mathjax-mobile,
+		.mathml-non-mobile {
+			display: none;
+		}
 
-  /* Show the MathML content by default on non-mobile devices */
-  .show-mathml .mathml-non-mobile { display: block; }
-  .show-mathjax .mathjax-mobile { display: block; }
+		/* Show the MathML content by default on non-mobile devices */
+		.show-mathml .mathml-non-mobile {
+			display: block;
+		}
 
-	.content-margin-container {
-		display: flex;
-		width: 100%; /* Ensure the container is full width */
-		justify-content: left; /* Horizontally centers the children in the container */
-		align-items: center;  /* Vertically centers the children in the container */
-	}
-	.main-content-block {
-		width: 70%; /* Change this percentage as needed */
-    max-width: 1100px; /* Optional: Maximum width */
-		background-color: #fff;
-		border-left: 1px solid #DDD;
-		border-right: 1px solid #DDD;
-		padding: 8px 8px 8px 8px;
-		font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;#"Avenir";
-	}
-	.margin-left-block {
+		.show-mathjax .mathjax-mobile {
+			display: block;
+		}
+
+		.content-margin-container {
+			display: flex;
+			width: 100%;
+			/* Ensure the container is full width */
+			justify-content: left;
+			/* Horizontally centers the children in the container */
+			align-items: center;
+			/* Vertically centers the children in the container */
+		}
+
+		.main-content-block {
+			width: 70%;
+			/* Change this percentage as needed */
+			max-width: 1100px;
+			/* Optional: Maximum width */
+			background-color: #fff;
+			border-left: 1px solid #DDD;
+			border-right: 1px solid #DDD;
+			padding: 8px 8px 8px 8px;
+			font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+			#"Avenir";
+		}
+
+		.margin-left-block {
 			font-size: 14px;
-			width: 15%; /* Change this percentage as needed */
-			max-width: 130px; /* Optional: Maximum width */
+			width: 15%;
+			/* Change this percentage as needed */
+			max-width: 130px;
+			/* Optional: Maximum width */
 			position: relative;
 			margin-left: 10px;
 			text-align: left;
-			font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;#"Avenir";
+			font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+			#"Avenir";
 			padding: 5px;
-	}
-	.margin-right-block {
-			font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;#"Avenir";
+		}
+
+		.margin-right-block {
+			font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+			#"Avenir";
 			font-size: 14px;
-			width: 25%; /* Change this percentage as needed */
-			max-width: 256px; /* Optional: Maximum width */
+			width: 25%;
+			/* Change this percentage as needed */
+			max-width: 256px;
+			/* Optional: Maximum width */
 			position: relative;
 			text-align: left;
-			padding: 10px;  /* Optional: Adds padding inside the caption */
-	}
+			padding: 10px;
+			/* Optional: Adds padding inside the caption */
+		}
 
-	img {
-			max-width: 100%; /* Make sure it fits inside the container */
+		img {
+			max-width: 100%;
+			/* Make sure it fits inside the container */
 			height: auto;
 			display: block;
 			margin: auto;
-	}
-	.my-video {
-			max-width: 100%; /* Make sure it fits inside the container */
+		}
+
+		.my-video {
+			max-width: 100%;
+			/* Make sure it fits inside the container */
 			height: auto;
 			display: block;
 			margin: auto;
-	}
-	/* Hide both video displays initially, will display based on JS detection */
-  .vid-mobile, .vid-non-mobile { display: none; }
+		}
 
-  /* Show the video content by default on non-mobile devices */
-  .show-vid-mobile .vid-mobile { display: block; }
-  .show-vid-non-mobile .vid-non-mobile { display: block; }
+		/* Hide both video displays initially, will display based on JS detection */
+		.vid-mobile,
+		.vid-non-mobile {
+			display: none;
+		}
 
-	a:link,a:visited
-	{
-		color: #0e7862; /*#1367a7;*/
-		text-decoration: none;
-	}
-	a:hover {
-		color: #24b597; /*#208799;*/
-	}
+		/* Show the video content by default on non-mobile devices */
+		.show-vid-mobile .vid-mobile {
+			display: block;
+		}
 
-	h1 {
-		font-size: 18px;
-		margin-top: 4px;
-		margin-bottom: 10px;
-	}
+		.show-vid-non-mobile .vid-non-mobile {
+			display: block;
+		}
 
-	table.header {
-    font-weight: 300;
-    font-size: 17px;
-    flex-grow: 1;
-		width: 70%;
-    max-width: calc(100% - 290px); /* Adjust according to the width of .paper-code-tab */
-	}
-	table td, table td * {
-	    vertical-align: middle;
-	    position: relative;
-	}
-	table.paper-code-tab {
-	    flex-shrink: 0;
-	    margin-left: 8px;
-	    margin-top: 8px;
-	    padding: 0px 0px 0px 8px;
-	    width: 290px;
-	    height: 150px;
-	}
+		a:link,
+		a:visited {
+			color: #0e7862;
+			/*#1367a7;*/
+			text-decoration: none;
+		}
 
-	.layered-paper { /* modified from: http://css-tricks.com/snippets/css/layered-paper/ */
-		box-shadow:
-		        0px 0px 1px 1px rgba(0,0,0,0.35), /* The top layer shadow */
-		        5px 5px 0 0px #fff, /* The second layer */
-		        5px 5px 1px 1px rgba(0,0,0,0.35), /* The second layer shadow */
-		        10px 10px 0 0px #fff, /* The third layer */
-		        10px 10px 1px 1px rgba(0,0,0,0.35); /* The third layer shadow */
-		margin-top: 5px;
-		margin-left: 10px;
-		margin-right: 30px;
-		margin-bottom: 5px;
-	}
+		a:hover {
+			color: #24b597;
+			/*#208799;*/
+		}
 
-	hr {
-    height: 1px; /* Sets the height of the line to 1 pixel */
-    border: none; /* Removes the default border */
-    background-color: #DDD; /* Sets the line color to black */
-  }
+		h1 {
+			font-size: 18px;
+			margin-top: 4px;
+			margin-bottom: 10px;
+		}
 
-	div.hypothesis {
-		width: 80%;
-		background-color: #EEE;
-		border: 1px solid black;
-		border-radius: 10px;
-		-moz-border-radius: 10px;
-		-webkit-border-radius: 10px;
-		font-family: Courier;
-		font-size: 18px;
-		text-align: center;
-		margin: auto;
-		padding: 16px 16px 16px 16px;
-	}
+		table.header {
+			font-weight: 300;
+			font-size: 17px;
+			flex-grow: 1;
+			width: 70%;
+			max-width: calc(100% - 290px);
+			/* Adjust according to the width of .paper-code-tab */
+		}
 
-	div.citation {
-    font-size: 0.8em;
-    background-color:#fff;
-    padding: 10px;
-		height: 200px;
-  }
-
-	.fade-in-inline {
-		position: absolute;
-		text-align: center;
-		margin: auto;
-		-webkit-mask-image: linear-gradient(to right,
-																			transparent 0%,
-																			transparent 40%,
-																			black 50%,
-																			black 90%,
-																			transparent 100%);
-		mask-image: linear-gradient(to right,
-																transparent 0%,
-																transparent 40%,
-																black 50%,
-																black 90%,
-																transparent 100%);
-		-webkit-mask-size: 8000% 100%;
-		mask-size: 8000% 100%;
-		animation-name: sweepMask;
-		animation-duration: 4s;
-		animation-iteration-count: infinite;
-		animation-timing-function: linear;
-		animation-delay: -1s;
-	}
-
-	.fade-in2-inline {
-			animation-delay: 1s;
-	}
-
-	.inline-div {
+		table td,
+		table td * {
+			vertical-align: middle;
 			position: relative;
-	    display: inline-block; /* Makes both the div and paragraph inline-block elements */
-	    vertical-align: top; /* Aligns them at the top, you can adjust this to middle, bottom, etc., based on your needs */
-	    width: 50px; /* Optional: Adds space between the div and the paragraph */
-	}
+		}
 
-</style>
+		table.paper-code-tab {
+			flex-shrink: 0;
+			margin-left: 8px;
+			margin-top: 8px;
+			padding: 0px 0px 0px 8px;
+			width: 290px;
+			height: 150px;
+		}
 
-	  <title>The Platonic Representation Hypothesis</title>
-      <meta property="og:title" content="The Platonic Representation Hypothesis" />
-			<meta charset="UTF-8">
-  </head>
+		.layered-paper {
+			/* modified from: http://css-tricks.com/snippets/css/layered-paper/ */
+			box-shadow:
+				0px 0px 1px 1px rgba(0, 0, 0, 0.35),
+				/* The top layer shadow */
+				5px 5px 0 0px #fff,
+				/* The second layer */
+				5px 5px 1px 1px rgba(0, 0, 0, 0.35),
+				/* The second layer shadow */
+				10px 10px 0 0px #fff,
+				/* The third layer */
+				10px 10px 1px 1px rgba(0, 0, 0, 0.35);
+			/* The third layer shadow */
+			margin-top: 5px;
+			margin-left: 10px;
+			margin-right: 30px;
+			margin-bottom: 5px;
+		}
 
-  <body>
+		hr {
+			height: 1px;
+			/* Sets the height of the line to 1 pixel */
+			border: none;
+			/* Removes the default border */
+			background-color: #DDD;
+			/* Sets the line color to black */
+		}
 
-		<div class="content-margin-container">
-				<div class="margin-left-block">
-				</div>
-		    <div class="main-content-block">
-						<table class="header" align=left>
-								<tr>
-									<td colspan=4>
-										<span style="font-size: 32px; font-family: 'Courier New', Courier, monospace; /* Adds fallbacks */">A Grand Unified Theory of Deep Learning</span>
-									</td>
-								</tr>
-								<tr>
-										<td align=left>
-												<span style="font-size:17px"><a href="your_website">Your name</a></span>
-										</td>
-										<td align=left>
-												<span style="font-size:17px"><a href="your_partner's_website">Your partner's name</a></span>
-										</td>
-								<tr>
-									<td colspan=4 align=left><span style="font-size:18px">Final project for 6.7960, MIT</span></td>
-								</tr>
-						</table>
-					</div>
-					<div class="margin-right-block">
-					</div>
+		div.hypothesis {
+			width: 80%;
+			background-color: #EEE;
+			border: 1px solid black;
+			border-radius: 10px;
+			-moz-border-radius: 10px;
+			-webkit-border-radius: 10px;
+			font-family: Courier;
+			font-size: 18px;
+			text-align: center;
+			margin: auto;
+			padding: 16px 16px 16px 16px;
+		}
+
+		div.citation {
+			font-size: 0.8em;
+			background-color: #fff;
+			padding: 10px;
+			height: 200px;
+		}
+
+		.fade-in-inline {
+			position: absolute;
+			text-align: center;
+			margin: auto;
+			-webkit-mask-image: linear-gradient(to right,
+					transparent 0%,
+					transparent 40%,
+					black 50%,
+					black 90%,
+					transparent 100%);
+			mask-image: linear-gradient(to right,
+					transparent 0%,
+					transparent 40%,
+					black 50%,
+					black 90%,
+					transparent 100%);
+			-webkit-mask-size: 8000% 100%;
+			mask-size: 8000% 100%;
+			animation-name: sweepMask;
+			animation-duration: 4s;
+			animation-iteration-count: infinite;
+			animation-timing-function: linear;
+			animation-delay: -1s;
+		}
+
+		.fade-in2-inline {
+			animation-delay: 1s;
+		}
+
+		.inline-div {
+			position: relative;
+			display: inline-block;
+			/* Makes both the div and paragraph inline-block elements */
+			vertical-align: top;
+			/* Aligns them at the top, you can adjust this to middle, bottom, etc., based on your needs */
+			width: 50px;
+			/* Optional: Adds space between the div and the paragraph */
+		}
+	</style>
+
+	<title>The Platonic Representation Hypothesis</title>
+	<meta property="og:title" content="The Platonic Representation Hypothesis" />
+	<meta charset="UTF-8">
+</head>
+
+<body>
+
+	<div class="content-margin-container">
+		<div class="margin-left-block">
+		</div>
+		<div class="main-content-block">
+			<table class="header" align=left>
+				<tr>
+					<td colspan=4>
+						<span
+							style="font-size: 32px; font-family: 'Courier New', Courier, monospace; /* Adds fallbacks */">A
+							Grand Unified Theory of Deep Learning</span>
+					</td>
+				</tr>
+				<tr>
+					<td align=left>
+						<span style="font-size:17px"><a href="your_website">Your name</a></span>
+					</td>
+					<td align=left>
+						<span style="font-size:17px"><a href="your_partner's_website">Your partner's name</a></span>
+					</td>
+				<tr>
+					<td colspan=4 align=left><span style="font-size:18px">Final project for 6.7960, MIT</span></td>
+				</tr>
+			</table>
+		</div>
+		<div class="margin-right-block">
+		</div>
+	</div>
+
+	<div class="content-margin-container" id="intro">
+		<div class="margin-left-block">
+			<!-- table of contents here -->
+			<div style="position:fixed; max-width:inherit; top:max(20%,120px)">
+				<b style="font-size:16px">Outline</b><br><br>
+				<a href="#intro">Introduction</a><br><br>
+				<a href="#does_x_do_y">Does X do Y?</a><br><br>
+				<a href="#implications_and_limitations">Implications and limitations</a><br><br>
+			</div>
+		</div>
+		<div class="main-content-block">
+			<!--You can embed an image like this:-->
+			<img src="./images/your_image_here.png" width=512px />
+		</div>
+		<div class="margin-right-block">
+			Caption for the image.
+		</div>
+	</div>
+
+	<div class="content-margin-container" id="intro">
+		<div class="margin-left-block">
+		</div>
+		<div class="main-content-block">
+			<h1 id="introduction-and-motivation">Introduction and Motivation</h1>
+			<p>Understanding how neural networks encode and manipulate geometric
+				data is essential for advancing machine learning applications in
+				physics, materials science, and molecular modeling. This study
+				investigates the autoencoding of voxel-based patterns, with a particular
+				focus on analyzing the latent geometric representations learned by the
+				model. By exploring these representations, we aim to uncover how
+				patterns of varying spatial complexity—such as striped or checkerboard
+				configurations—are encoded and decoded, and identify which patterns pose
+				greater challenges for models to learn. Additionally, we compare the
+				performance of standard unpooling methods with equivariant deconvolution
+				in the context of a symmetry-aware autoencoder.</p>
+			<p>The motivation for this work is twofold. First, it provides a
+				platform for analyzing geometric interpretations of learned
+				representations. Investigating the latent space reveals insights into
+				the network’s ability to encode patterns at different length scales into
+				non-geometric degrees of freedom, rather than spatial coordinates like
+				pixels or points. This approach can generalize to diverse geometric
+				datasets, helping us to understand how patterns are efficiently
+				compressed and reconstructed in neural networks.</p>
+			<p>Second, autoencoding and coarse-graining voxel grids or lattice
+				structures have important applications in materials science,
+				particularly for high-entropy alloys (HEAs). HEAs are a class of
+				metallic materials that are made by mixing five or more elements in
+				near-equal atomic concentrations which give rise to unique properties
+				including strength, ductility, thermal stability, and resistance to
+				corrosion. HEAs also exhibit superconductivity, superparamagnetism, and
+				irradiation resistance.</p>
+			<p>Efficient modeling of HEAs using molecular dynamics (MD) simulations
+				often requires coarse-graining techniques to reduce computational costs
+				while preserving essential physical properties. Autoencoders offer a
+				promising solution by enabling the encoding of high-entropy lattices
+				into compact latent representations, facilitating efficient simulations
+				and predictive modeling of material properties under varying conditions
+				such as temperature and pressure.</p>
+		</div>
+	</div>
+
+	<div class="content-margin-container" id="does_x_do_y">
+		<div class="margin-left-block">
+		</div>
+		<div class="main-content-block">
+			<h1 id="background">Background</h1>
+			<p>We will be building off of code the paper <em>Leveraging
+					SO(3)-steerable convolutions for pose-robust semantic segmentation in 3D
+					medical data</em> <span class="citation" data-cites="e3nn_medical"></span>, which creates an SO(3)
+				equivariant
+				segmentation network applied to voxelized 3D medical imaging data. This
+				theoretical framework and accompanying code are built on previous work
+				including <em><code>e3nn</code>: Euclidean Neural Networks</em><span class="citation"
+					data-cites="geiger2022e3nn"></span>, <em>Group
+					equivariant convolutional networks</em><span class="citation" data-cites="cohen2016group"></span>
+				and <em>3D
+					steerable CNNs: Learning
+					rotationally equivariant features in volumetric data</em><span class="citation"
+					data-cites="weiler2018steerable"></span>.</p>
+			<h2 id="introduction-to-group-representations-and-equivariance">Introduction
+				to Group Representations and Equivariance</h2>
+			<p>We will give an introduction to <em>group theory</em>, the
+				mathematical foundation for incorporating symmetries in neural networks
+				from <em><code>e3nn</code>: Euclidean Neural Networks</em><span class="citation"
+					data-cites="geiger2022e3nn"></span>. A group is a
+				mathematical structure that defines a set of elements and operations
+				(e.g., rotations, reflections, translations) that obey associativity,
+				have an identity element, and allow inverses. The relevant group for 3D
+				geometric data is the <em>Euclidean group</em> <span class="math inline"><em>E</em>(3)</span>, which
+				includes all
+				translations, rotations (<span class="math inline"><em>S</em><em>O</em>(3)</span>), and reflections
+				(<span class="math inline"><em>O</em>(3)</span>).</p>
+			<h3 id="group-representations">Group Representations</h3>
+			<p>In Euclidean neural networks, all data and operations are defined by
+				how they transform under the group <span class="math inline"><em>G</em></span>. A
+				<em>representation</em> is a
+				mapping that assigns a matrix transformation to each group element,
+				preserving group structure. The <em>irreducible representations</em>
+				(irreps) are the smallest building blocks of these representations and
+				cannot be decomposed further. For <span class="math inline"><em>S</em><em>O</em>(3)</span>, irreps are
+				indexed
+				by <span class="math inline"><em>l</em> = 0, 1, 2, …</span>, where <span
+					class="math inline"><em>l</em> = 0</span>
+				corresponds to scalar
+				features, <span class="math inline"><em>l</em> = 1</span> to vectors,
+				and <span class="math inline"><em>l</em> = 2</span> to higher-order
+				tensors.
+			</p>
+			<h3 id="equivariance">Equivariance</h3>
+			<p>A function <span class="math inline"><em>f</em> : <em>X</em> → <em>Y</em></span> is
+				<em>equivariant</em> under the group <span class="math inline"><em>G</em></span> if transforming the
+				input <span class="math inline"><em>x</em></span> using the group <span
+					class="math inline"><em>G</em></span> produces the
+				same result as
+				transforming the output <span class="math inline"><em>f</em>(<em>x</em>)</span> under <span
+					class="math inline"><em>G</em></span>. In other words, the function
+				commutes with the group action: <span
+					class="math display"><em>f</em>(<em>D</em><sub><em>X</em></sub>(<em>g</em>)<em>x</em>) = <em>D</em><sub><em>Y</em></sub>(<em>g</em>)<em>f</em>(<em>x</em>),  ∀<em>g</em> ∈ <em>G</em>, <em>x</em> ∈ <em>X</em>,</span>
+				where <span class="math inline"><em>D</em><sub><em>X</em></sub>(<em>g</em>)</span>
+				and <span class="math inline"><em>D</em><sub><em>Y</em></sub>(<em>g</em>)</span>
+				are the representations of the group acting on the input and output
+				spaces, respectively.
+			</p>
+			<p>For neural networks, this means that all layers, including
+				convolutions, activations, and pooling operations, must respect this
+				property to ensure the model captures symmetries inherent in the data.
+				The <code>e3nn</code> library <span class="citation" data-cites="geiger2022e3nn"></span> implements this
+				by
+				designing network
+				components, such as steerable convolutions, that operate on irreps of
+				<span class="math inline"><em>S</em><em>O</em>(3)</span> or <span
+					class="math inline"><em>E</em>(3)</span>. These
+				layers guarantee that
+				the entire network remains equivariant, allowing it to handle symmetries
+				effectively while reducing the need for data augmentation.
+			</p>
+			<h2 id="representations-in-so3-equivariant-networks">Representations in
+				SO(3)-Equivariant Networks</h2>
+			<p>Conventional CNNs primarily output scalar values. However,
+				SO(3)-equivariant networks extend this to more complex representations,
+				including scalar (<span class="math inline"><em>l</em> = 0</span>),
+				vector (<span class="math inline"><em>l</em> = 1</span>), and tensor
+				(<span class="math inline"><em>l</em> = 2</span>) features. These
+				representations allow the model to detect rotationally robust patterns,
+				critical for tasks such as edge detection and orientational feature
+				learning. The irreducible representations (irreps) are encoded using
+				spherical harmonics, capturing how features transform under
+				rotations.</p>
+			<h2 id="equivariant-voxel-convolutions">Equivariant Voxel
+				Convolutions</h2>
+			<p>The core of this method is the <em>equivariant convolution</em>,
+				which uses steerable filters designed as a tensor product of radial
+				functions and spherical harmonics. Each layer maps input irreps to
+				output irreps based on selection rules (<span
+					class="math inline">|<em>l</em><sub><em>i</em></sub> − <em>l</em><sub><em>j</em></sub>| ≤ <em>l</em> ≤ <em>l</em><sub><em>i</em></sub> + <em>l</em><sub><em>j</em></sub></span>),
+				making sure that the outputs respect the equivariance constraints of the
+				SO(3) symmetry group. A self-correction layer is introduced at each step
+				to mitigate discretization errors, implemented as a tensor product
+				summing over all input irreps.</p>
+			<h2 id="pooling-nonlinearities-and-normalization">Pooling,
+				Nonlinearities, and Normalization</h2>
+			<p>To preserve equivariance, the network uses <em>gated
+					nonlinearities</em>, where scalar features gate higher-order features
+				(e.g., vector and tensor irreps). For pooling, instance normalization is
+				applied, and max-pooling selects features based on their <span
+					class="math inline">ℓ<sup>2</sup></span>-norm <span class="citation"
+					data-cites="cesa2021en"></span>. This combination of techniques ensures
+				that equivariant features are efficiently compressed while retaining
+				their rotational robustness.</p>
+			<h1 id="related-works">Related Works</h1>
+			<p>The use of neural networks to encode and analyze geometric data has
+				garnered significant attention in fields such as materials science,
+				molecular modeling, and medical imaging. Our work builds on recent
+				advancements in equivariant neural networks, particularly those
+				leveraging <span class="math inline"><em>S</em><em>O</em>(3)</span>-steerable
+				convolutions, to develop a symmetric autoencoder for voxel-based
+				patterns. Below, we summarize the most relevant prior work.</p>
+			<h2 id="equivariant-convolutions-in-medical-imaging">Equivariant
+				Convolutions in Medical Imaging</h2>
+			<p>The study <em>Leveraging SO(3)-steerable convolutions for pose-robust
+					semantic segmentation in 3D medical data</em> introduces spherical
+				harmonic-based convolutional kernels that achieve rotational
+				equivariance <span class="citation" data-cites="e3nn_medical"></span>.
+				These layers improve parameter efficiency, robustness to unseen poses,
+				and reduce reliance on data augmentation. Their success in MRI
+				segmentation tasks informed the architecture of our symmetric
+				autoencoder, which adapts these kernels for encoding voxel patterns with
+				rotational symmetry.</p>
+			<h2 id="symmetric-autoencoders-for-molecular-structures">Symmetric
+				Autoencoders for Molecular Structures</h2>
+			<p><em>Ophiuchus: Scalable Modeling of Protein Structures through
+					Hierarchical Coarse-graining SO(3)-Equivariant Autoencoders</em>
+				demonstrates the utility of symmetry-aware autoencoders for hierarchical
+				coarse-graining of protein structures <span class="citation" data-cites="ophiuchus"></span>. The model
+				leverages
+				<span class="math inline"><em>S</em><em>O</em>(3)</span>-equivariant layers to
+				encode local geometric features efficiently. Inspired by this, we
+				explore how voxel patterns at different spatial resolutions are encoded
+				and reconstructed.
+			</p>
+			<h2 id="autoencoders-in-molecular-and-materials-science">Autoencoders in
+				Molecular and Materials Science</h2>
+			<p>Autoencoders have recently been applied in molecular and materials
+				science for tasks such as molecular design, property prediction, and
+				efficient sampling. Prior work<span class="citation"
+					data-cites="nature_materials chem_comm arxiv_2022"></span> has
+				demonstrated their ability to encode molecular data into compact latent
+				spaces, enabling efficient simulations and analyses.</p>
+			<p>Our work extends these efforts by examining the geometric properties
+				of learned latent representations, comparing the difficulty of encoding
+				different spatial patterns, and evaluating the performance of standard
+				unpooling methods versus equivariant deconvolutions. This study bridges
+				theoretical advancements in equivariant neural networks with practical
+				applications in encoding and analyzing various voxel structures.</p>
+		</div>
+		<div class="margin-right-block" style="transform: translate(0%, -100%);">
+		</div>
+	</div>
+
+	<div class="content-margin-container">
+		<div class="margin-left-block">
+		</div>
+		<div class="main-content-block">
+			<h1 id="methods-and-experiments">Methods and Experiments</h1>
+			<h2 id="unet">UNet</h2>
+			<p>created deconvolution for equivariant upsampling, outputting irreps,
+				spherical harmonics and radial information.</p>
+			<p>For our experiments, we use the SO(3)-equivariant UNet model
+				developed by Diaz et al. <span class="citation" data-cites="e3nn_medical"></span> as our base model.
+				While the
+				original
+				UNet model is a residual model, we convert it to a non-residual
+				autoencoder by removing skip connections. The UNet architecture is shown
+				in [FIGURE]</p>
+			<p>[INSERT UNET FIGURE HERE]</p>
+			<h2 id="deconvolution">Deconvolution</h2>
+			<p>In its decoding layers, vanilla UNet upsamples the data at each step
+				by doubling each dimension of the data and expanding the contents of
+				each voxel into a 2x2x2 region, per the standard implementation in
+				PyTorch.</p>
+			<p>For comparison, we implement a more expressive equivariant
+				deconvolution method as shown in figure [MODEL FIGURE NUMBER].</p>
+			<p>Given a 3D input, we begin with the same convolution block as
+				described in Diaz et al. <span class="citation" data-cites="e3nn_medical"></span>. Then, to upscale, we
+				first encode
+				the
+				relative vectors from each original voxel to the new voxels occupying
+				the analogous space in the output data. Then, we take the full tensor
+				product of the convolution output with the position data, and pass it
+				through an equivariant linear layer.</p>
+		</div>
+		<div class="margin-right-block">
+			A caption for the video could go here.
+		</div>
+	</div>
+
+	<div class="content-margin-container" id="results">
+		<div class="margin-left-block">
+		</div>
+		<div class="main-content-block">
+			<h1 id="experiments-and-results">Experiments and Results</h1>
+			<h2 id="dataset-preparation">Dataset Preparation</h2>
+			<p>Synthetic voxel datasets were generated to evaluate the performance
+				of the models. Two patterns were used: striped and checkerboard, each
+				with dimensions <span class="math inline">32 × 32 × 32</span>. Rotated
+				versions of these datasets were created to test the models’ equivariance
+				properties, with rotations of 45 degrees applied in the XY-plane. Noisy
+				versions of both datasets were also generated to test model
+				robustness.</p>
+			<figure>
+				<img src="" style="height:5cm" />
+			</figure>
+			<p>PIC OF VOXELS</p>
+			<h2 id="training-setup">Training Setup</h2>
+			<p>We trained four models on these datasets:</p>
+			<ol>
+				<li>
+					<p>Vanilla UNet on striped patterns.</p>
+				</li>
+				<li>
+					<p>Equivariant DeconvUNet on striped patterns.</p>
+				</li>
+				<li>
+					<p>Vanilla UNet on checkerboard patterns.</p>
+				</li>
+				<li>
+					<p>Equivariant DeconvUNet on checkerboard patterns.</p>
+				</li>
+			</ol>
+			<p>Each model was trained for 5000 epochs, and the training loss,
+				measured as the mean squared error (MSE), was tracked and plotted to
+				monitor learning progress. PIC OF LOSS Curves (on 1000). INCLUDE
+				Reconstructions from 5000 folder for all models (minus noise).</p>
+			<h2 id="evaluation">Evaluation</h2>
+			<p><strong>Reconstruction Accuracy:</strong> The trained models were
+				evaluated on their ability to reconstruct the original, rotated, and
+				noisy patterns. Reconstruction errors were computed as the mean squared
+				error between the input and the reconstructed patterns. PIC OF
+				RECONSTRUCTION LOSS <strong>SO(3) Equivariance Error:</strong> To
+				quantify the symmetry-preserving properties of the models, we computed
+				the SO(3) equivariance error using rotated datasets. This error measured
+				the discrepancy between the model’s outputs for original and rotated
+				inputs, normalized by the output’s magnitude.</p>
+			<p><strong>Visualization of Results:</strong> Reconstruction errors and
+				SO(3) equivariance errors were visualized as bar plots to enable a
+				direct comparison across models and datasets. PIC OF EQUIVARIANCE
+				LOSS</p>
+			<h2 id="latent-space-analysis">Latent Space Analysis</h2>
+			<p>To examine how the models encode geometric features, we performed a
+				Principal Component Analysis (PCA) on the bottleneck (latent space)
+				representations. Scatter plots of the first two principal components
+				were generated to visualize clustering behavior for different patterns
+				(striped vs. checkerboard). PIC OF PCAs</p>
+			<h2 id="noise-sensitivity-analysis">Noise Sensitivity Analysis</h2>
+			<p>In addition to evaluating reconstruction and equivariance properties,
+				we conducted a noise sensitivity analysis to compare the robustness of
+				the Vanilla UNet and Equivariant DeconvUNet. This experiment aimed to
+				assess how well each model could reconstruct noisy inputs.</p>
+			<h3 id="noise-types">Noise Types</h3>
+			<p>Two types of noise were introduced to the voxel datasets (striped and
+				checkerboard patterns):</p>
+			<ol>
+				<li>
+					<p><strong>Gaussian Noise:</strong> Random values sampled from a
+						normal distribution with a mean of 0 and a variance of 0.01 were added
+						to the voxel intensities.</p>
+				</li>
+				<li>
+					<p><strong>Salt-and-Pepper Noise:</strong> A fraction of the voxel
+						intensities were randomly set to either 0 or 1 to simulate sparsely
+						distributed noise.</p>
+				</li>
+			</ol>
+			<p>Both types of noise were added separately to the striped and
+				checkerboard datasets. The noisy datasets were fed into the trained
+				Vanilla UNet and Equivariant DeconvUNet models. Reconstruction
+				performance was evaluated by computing the mean squared error (MSE)
+				between the noisy input and the reconstructed output. PIC OF Gaussian
+				and SP reconstructions LOSS</p>
+		</div>
+		<div class="margin-right-block">
+		</div>
+	</div>
+
+	<div class="content-margin-container" id="implications_and_limitations">
+		<div class="margin-left-block">
+		</div>
+		<div class="main-content-block">
+			<h1 id="results-and-discussion">Results and Discussion</h1>
+			<h2 id="reconstruction-performance">Reconstruction Performance</h2>
+			<p>The reconstruction loss for the four models—Vanilla UNet and Deconv
+				UNet trained on striped and checkerboard patterns—was evaluated. The
+				results, as shown in Figure X, indicate that the Vanilla UNet performs
+				better compared to the Deconv UNet on the striped dataset and similarly
+				on checkerboard patterns.</p>
+			<p>Notably, the checkerboard patterns posed a greater challenge for both
+				models, yielding higher reconstruction errors than striped patterns.
+				This aligns with the hypothesis that checkerboards, due to their higher
+				spatial frequency and symmetry complexity, require higher-order irreps
+				for effective encoding and reconstruction.</p>
+			<h2 id="so3-equivariance-error">SO(3) Equivariance Error</h2>
+			<p>Looking at the plotted SO(3) equivariance error across the models, we
+				see that the Deconv UNet demonstrated superior equivariance compared to
+				the Vanilla UNet for both pattern types, achieving significantly lower
+				errors in the checkerboard task. This highlights the effectiveness of
+				equivariant deconvolution layers in preserving rotational symmetries,
+				particularly for more complex patterns like checkerboards, where
+				rotational symmetry plays a critical role.</p>
+			<h2 id="latent-space-analysis-1">Latent Space Analysis</h2>
+			<p>We plot the PCA of latent spaces for the different models and
+				patterns (FIG ABOVE or here?). The Deconv UNet latent space exhibited a
+				more sparse, cross-like distribution, potentially indicating a
+				preference for disentangling symmetries. In contrast, the Vanilla UNet
+				latent space was denser and less structured. Checkerboard patterns led
+				to more complex latent space structures across models, suggesting that
+				higher spatial frequencies introduce more intricate representations.</p>
+			<h2 id="noise-sensitivity">Noise Sensitivity</h2>
+			<p>The robustness of the models to Gaussian and salt-and-pepper noise
+				was tested. The Deconv UNet and the Vanilla UNet have similar
+				performance, with the Vanilla UNe. This robustness underscores the
+				benefits of incorporating equivariant layers, which better preserve the
+				structural integrity of patterns under perturbations.</p>
+			<h1 id="conclusion">Conclusion</h1>
+			<p>This study focused on analyzing the tradeoffs of equivariant deconvolutions in both the reconstruction
+				accuracy and symmetry-preservation of autoencoders for voxel-based patterns. Although the Deconv UNet
+				and the Vanilla UNet performed similarly in many experiments (with the Vanilla UNet performing better on
+				simpler tasks), the SO(3)-equivariance error and latent space disentanglement show that the Deconv UNet
+				may be more expressive in representing complex patterns though it is not clear. Future work could
+				continue our analysis and explore the application of these models to real-world datasets, such as
+				molecular or material simulations, where symmetry plays a critical role.</p>
+			<div class="margin-right-block">
+			</div>
 		</div>
 
-		<div class="content-margin-container" id="intro">
-				<div class="margin-left-block">
-          <!-- table of contents here -->
-          <div style="position:fixed; max-width:inherit; top:max(20%,120px)">
-              <b style="font-size:16px">Outline</b><br><br>
-              <a href="#intro">Introduction</a><br><br>
-              <a href="#does_x_do_y">Does X do Y?</a><br><br>
-              <a href="#implications_and_limitations">Implications and limitations</a><br><br>
-          </div>
-				</div>
-		    <div class="main-content-block">
-            <!--You can embed an image like this:-->
-            <img src="./images/your_image_here.png" width=512px/>
-		    </div>
-		    <div class="margin-right-block">
-						Caption for the image.
-		    </div>
-		</div>
-
-    <div class="content-margin-container" id="intro">
-				<div class="margin-left-block">
-				</div>
-		    <div class="main-content-block">
-						<h1>Introduction</h1>
-            Motivate your project. What question are you asking. Why is it unanswered so far? What gap in the literature or practice are you filling?
-            Why is it important?
-		    </div>
-		    <div class="margin-right-block">
-						Margin note that clarifies some detail #main-content-block for intro section.
-		    </div>
-		</div>
-
-		<div class="content-margin-container" id="does_x_do_y">
-				<div class="margin-left-block">
-				</div>
-		    <div class="main-content-block">
-					<h1>Does X do Y?</h1>
-				  It is well known that Y does Y. And this has raised the question does X do Y? Because if Y does Y then it stands to reason that X does Y.
-          But we cannot answer this until we realize the Z implies Y and X can be linked to Z.<br><br>
-
-          Now let's write some math!<br>
-          <center>
-            <math xmlns="http://www.w3.org/1998/Math/MathML">
-              <mrow>
-                <mrow>
-                  <mo>&#x2202;</mo>
-                  <mi>y</mi>
-                </mrow>
-                <mo>/</mo>
-                <mrow>
-                  <mo>&#x2202;</mo>
-                  <mi>x</mi>
-                </mrow>
-              </mrow>
-              <mo>=</mo>
-              <mi>x</mi>
-            </math>
-          </center>
-          <br>
-          It's probably best to ask an LLM to help do the web
-          formatting for math. You can tell it "convert this latex equation into MathML: $$\frac{\partial dy}{\partial dx} = x$$"
-          But it took me a few tries. So, if you get frustrated, you can embed an image of the equation, or use other packages for
-          rendering equations on webpages.
-		    </div>
-		    <div class="margin-right-block" style="transform: translate(0%, -100%);"> <!-- you can move the margin notes up and down with translate -->
-          Interestingly, Plato also asked if X does Y, in <a href="#ref_1">[1]</a>.
-		    </div>
-		</div>
-
-		<div class="content-margin-container">
-				<div class="margin-left-block">
-				</div>
-		    <div class="main-content-block">
-            <h1>Another section</h1>
-            In this section we embed a video:
-						<video class='my-video' loop autoplay muted style="width: 725px">
-								<source src="./images/mtsh.mp4" type="video/mp4">
-						</video>
-		    </div>
-		    <div class="margin-right-block">
-					A caption for the video could go here.
-		    </div>
-		</div>
-
-		<div class="content-margin-container" id="implications_and_limitations">
-				<div class="margin-left-block">
-				</div>
-		    <div class="main-content-block">
-						<h1>Implications and limitations</h1>
-						Let's end with some discussion of the implications and limitations.
-		    </div>
-		    <div class="margin-right-block">
-		    </div>
-		</div>
 
 		<div class="content-margin-container" id="citations">
-				<div class="margin-left-block">
+			<div class="margin-left-block">
+			</div>
+			<div class="main-content-block">
+				<div class='citation' id="references" style="height:auto"><br>
+					<span style="font-size:16px">References:</span><br><br>
+					<a id="ref_1"></a>[1] Yaxin An and Sanket A. Deshmukh. “Machine learning approach for accurate
+					backmapping of coarse-
+					grained models to all-atom models”. In: Chemical Communications (2020). Available: https://xlink.
+					rsc.org/?DOI=D0CC02651D. <br/>
+					<a id="ref_2"></a>[2] Gabriele Cesa, Leon Lang, and Maurice Weiler. “A program to build
+					E(N)-equivariant steerable CNNs”.
+					In: International Conference on Learning Representations. 2021. <br/>
+					<a id="ref_3"></a>[3] Taco Cohen and Max Welling. “Group equivariant convolutional networks”. In:
+					International Conference
+					on Machine Learning. PMLR, 2016, pp. 2990–2999. <br/>
+					<a id="ref_4"></a>[4] Ivan Diaz, Mario Geiger, and Richard Iain McKinley. Leveraging SO(3)-steerable
+					convolutions for pose-
+					robust semantic segmentation in 3D medical data. Available: https://arxiv.org/pdf/2303.00351v3.
+					2024. <br/>
+					<a id="ref_5"></a>[5] Mario Geiger and Tess Smidt. “e3nn: Euclidean neural networks”. In:
+					arXiv:2207.09453 (2022). <br/>
+					<a id="ref_6"></a>[6] Allan dos Santos Costa et al. Ophiuchus: Scalable Modeling of Protein
+					Structures through Hierarchical
+					Coarse-graining SO(3)-Equivariant Autoencoders. 2023. arXiv: 2310.02508 [cs.LG]. url: https://
+					arxiv.org/abs/2310.02508. <br/>
+					<a id="ref_7"></a>[7] Wujie Wang and Rafael G´omez-Bombarelli. “Coarse-graining auto-encoders for
+					molecular dynamics”.
+					In: Nature Materials (2019). Available: https://doi.org/10.1038/s41524-019-0261-5. <br/>
+					<a id="ref_8"></a>[8] Wujie Wang et al. “Generative Coarse-Graining of Molecular Conformations”. In:
+					CoRR abs/2201.12176
+					(2022). arXiv: 2201.12176. url: https://arxiv.org/abs/2201.12176. <br/>
+					<a id="ref_9"></a>[9] Maurice Weiler et al. “3D steerable CNNs: Learning rotationally equivariant
+					features in volumetric
+					data”. In: Advances in Neural Information Processing Systems 31 (2018).
 				</div>
-		    <div class="main-content-block">
-						<div class='citation' id="references" style="height:auto"><br>
-							<span style="font-size:16px">References:</span><br><br>
-							<a id="ref_1"></a>[1] <a href="https://en.wikipedia.org/wiki/Allegory_of_the_cave">Allegory of the Cave</a>, Plato, c. 375 BC<br><br>
-							<a id="ref_2"></a>[2] <a href="">A Human-Level AGI</a>, OpenAI, 2025<br><br>
-						</div>
-		    </div>
-		    <div class="margin-right-block">
-            <!-- margin notes for reference block here -->
-		    </div>
+			</div>
+			<div class="margin-right-block">
+				<!-- margin notes for reference block here -->
+			</div>
 		</div>
 
-	</body>
+</body>
 
 </html>

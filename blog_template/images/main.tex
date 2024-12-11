@@ -1,0 +1,164 @@
+\documentclass[letterpaper]{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage[margin=1in]{geometry}
+\usepackage[backend=bibtex]{biblatex}
+\addbibresource{bibtex.bib}
+
+
+\title{6.7960 blog draft}
+\author{Giulianna Hashemi-Asasi, Song Kim}
+\date{December 2024}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction and Motivation}
+Understanding how neural networks encode and manipulate geometric data is essential for advancing machine learning applications in physics, materials science, and molecular modeling. This study investigates the autoencoding of voxel-based patterns, with a particular focus on analyzing the latent geometric representations learned by the model. By exploring these representations, we aim to uncover how patterns of varying spatial complexity—such as striped or checkerboard configurations—are encoded and decoded, and identify which patterns pose greater challenges for models to learn. Additionally, we compare the performance of standard unpooling methods with equivariant deconvolution in the context of a symmetry-aware autoencoder.
+
+The motivation for this work is twofold. First, it provides a platform for analyzing geometric interpretations of learned representations. Investigating the latent space reveals insights into the network's ability to encode patterns at different length scales into non-geometric degrees of freedom, rather than spatial coordinates like pixels or points. This approach can generalize to diverse geometric datasets, helping us to understand how patterns are efficiently compressed and reconstructed in neural networks.
+
+Second, autoencoding and coarse-graining voxel grids or lattice structures have important applications in materials science, particularly for high-entropy alloys (HEAs). 
+HEAs are a class of metallic materials that are made by mixing five or more elements in near-equal atomic concentrations which give rise to unique properties including strength, ductility, thermal stability, and resistance to corrosion. HEAs also exhibit superconductivity, superparamagnetism, and irradiation resistance.
+
+Efficient modeling of HEAs using molecular dynamics (MD) simulations often requires coarse-graining techniques to reduce computational costs while preserving essential physical properties. Autoencoders offer a promising solution by enabling the encoding of high-entropy lattices into compact latent representations, facilitating efficient simulations and predictive modeling of material properties under varying conditions such as temperature and pressure.
+
+\section{Background}
+We will be building off of code the paper \emph{Leveraging SO(3)-steerable convolutions for pose-robust semantic segmentation in 3D medical data} \cite{e3nn_medical}, which creates an SO(3) equivariant segmentation network applied to voxelized 3D medical imaging data. This theoretical framework and accompanying code are built on previous work including \emph{\texttt{e3nn}: Euclidean Neural Networks}\cite{geiger2022e3nn}, \emph{Group equivariant convolutional networks}\cite{cohen2016group} and \emph{3D steerable CNNs: Learning rotationally equivariant features in volumetric data}\cite{weiler2018steerable}.
+
+\subsection{Introduction to Group Representations and Equivariance}
+We will give an introduction to \textit{group theory}, the mathematical foundation for incorporating symmetries in neural networks from \emph{\texttt{e3nn}: Euclidean Neural Networks}\cite{geiger2022e3nn}.
+A group is a mathematical structure that defines a set of elements and operations (e.g., rotations, reflections, translations) that obey associativity, have an identity element, and allow inverses. The relevant group for 3D geometric data is the \textit{Euclidean group} \(E(3)\), which includes all translations, rotations (\(SO(3)\)), and reflections (\(O(3)\)).
+
+\subsubsection{Group Representations}
+In Euclidean neural networks, all data and operations are defined by how they transform under the group \(G\). A \textit{representation} is a mapping that assigns a matrix transformation to each group element, preserving group structure. The \textit{irreducible representations} (irreps) are the smallest building blocks of these representations and cannot be decomposed further. For \(SO(3)\), irreps are indexed by \(l = 0, 1, 2, \ldots\), where \(l = 0\) corresponds to scalar features, \(l = 1\) to vectors, and \(l = 2\) to higher-order tensors.
+
+\subsubsection{Equivariance}
+A function \(f: X \to Y\) is \textit{equivariant} under the group \(G\) if transforming the input \(x\) using the group \(G\) produces the same result as transforming the output \(f(x)\) under \(G\). In other words, the function commutes with the group action:
+\[
+f(D_X(g)x) = D_Y(g)f(x), \quad \forall g \in G, \, x \in X,
+\]
+where \(D_X(g)\) and \(D_Y(g)\) are the representations of the group acting on the input and output spaces, respectively.
+
+For neural networks, this means that all layers, including convolutions, activations, and pooling operations, must respect this property to ensure the model captures symmetries inherent in the data. The \texttt{e3nn} library \cite{geiger2022e3nn} implements this by designing network components, such as steerable convolutions, that operate on irreps of \(SO(3)\) or \(E(3)\). These layers guarantee that the entire network remains equivariant, allowing it to handle symmetries effectively while reducing the need for data augmentation.
+
+
+
+\subsection{Representations in SO(3)-Equivariant Networks}
+Conventional CNNs primarily output scalar values. However, SO(3)-equivariant networks extend this to more complex representations, including scalar ($l=0$), vector ($l=1$), and tensor ($l=2$) features. These representations allow the model to detect rotationally robust patterns, critical for tasks such as edge detection and orientational feature learning. The irreducible representations (irreps) are encoded using spherical harmonics, capturing how features transform under rotations.
+
+\subsection{Equivariant Voxel Convolutions}
+The core of this method is the \textit{equivariant convolution}, which uses steerable filters designed as a tensor product of radial functions and spherical harmonics. Each layer maps input irreps to output irreps based on selection rules ($|l_i - l_j| \leq l \leq l_i + l_j$), making sure that the outputs respect the equivariance constraints of the SO(3) symmetry group. A self-correction layer is introduced at each step to mitigate discretization errors, implemented as a tensor product summing over all input irreps.
+
+\subsection{Pooling, Nonlinearities, and Normalization}
+To preserve equivariance, the network uses \textit{gated nonlinearities}, where scalar features gate higher-order features (e.g., vector and tensor irreps). For pooling, instance normalization is applied, and max-pooling selects features based on their $\ell^2$-norm \cite{cesa2021en}. This combination of techniques ensures that equivariant features are efficiently compressed while retaining their rotational robustness.
+
+
+\section{Related Works}
+
+The use of neural networks to encode and analyze geometric data has garnered significant attention in fields such as materials science, molecular modeling, and medical imaging. Our work builds on recent advancements in equivariant neural networks, particularly those leveraging $SO(3)$-steerable convolutions, to develop a symmetric autoencoder for voxel-based patterns. Below, we summarize the most relevant prior work.
+
+\subsection{Equivariant Convolutions in Medical Imaging}
+The study \emph{Leveraging SO(3)-steerable convolutions for pose-robust semantic segmentation in 3D medical data} introduces spherical harmonic-based convolutional kernels that achieve rotational equivariance \cite{e3nn_medical}. These layers improve parameter efficiency, robustness to unseen poses, and reduce reliance on data augmentation. Their success in MRI segmentation tasks informed the architecture of our symmetric autoencoder, which adapts these kernels for encoding voxel patterns with rotational symmetry.
+
+\subsection{Symmetric Autoencoders for Molecular Structures}
+\emph{Ophiuchus: Scalable Modeling of Protein Structures through Hierarchical Coarse-graining SO(3)-Equivariant Autoencoders} demonstrates the utility of symmetry-aware autoencoders for hierarchical coarse-graining of protein structures \cite{ophiuchus}. The model leverages $SO(3)$-equivariant layers to encode local geometric features efficiently. Inspired by this, we explore how voxel patterns at different spatial resolutions are encoded and reconstructed.
+
+\subsection{Autoencoders in Molecular and Materials Science}
+Autoencoders have recently been applied in molecular and materials science for tasks such as molecular design, property prediction, and efficient sampling. Prior work\cite{nature_materials, chem_comm, arxiv_2022} has demonstrated their ability to encode molecular data into compact latent spaces, enabling efficient simulations and analyses. 
+
+Our work extends these efforts by examining the geometric properties of learned latent representations, comparing the difficulty of encoding different spatial patterns, and evaluating the performance of standard unpooling methods versus equivariant deconvolutions. This study bridges theoretical advancements in equivariant neural networks with practical applications in encoding and analyzing various voxel structures.
+
+\section{Methods and Experiments}
+\subsection{UNet}  created deconvolution for equivariant upsampling, outputting irreps, spherical harmonics and radial information.
+
+For our experiments, we use the SO(3)-equivariant UNet model developed by Diaz et al. \cite{e3nn_medical} as our base model. While the original UNet model is a residual model, we convert it to a non-residual autoencoder by removing skip connections. The UNet architecture is shown in [FIGURE]
+
+[INSERT UNET FIGURE HERE]
+
+\subsection{Deconvolution}
+In its decoding layers, vanilla UNet upsamples the data at each step by doubling each dimension of the data and expanding the contents of each voxel into a 2x2x2 region, per the standard implementation in PyTorch. % man why is this more annoying to describe than I thought it would be
+
+For comparison, we implement a more expressive equivariant deconvolution method as shown in figure [MODEL FIGURE NUMBER].
+
+Given a 3D input, we begin with the same convolution block as described in Diaz et al. \cite{e3nn_medical}. Then, to upscale, we first encode the relative vectors from each original voxel to the new voxels occupying the analogous space in the output data. Then, we take the full tensor product of the convolution output with the position data, and pass it through an equivariant linear layer.
+
+\section{Experiments and Results}
+
+\subsection{Dataset Preparation}
+Synthetic voxel datasets were generated to evaluate the performance of the models. Two patterns were used: striped and checkerboard, each with dimensions $32 \times 32 \times 32$. Rotated versions of these datasets were created to test the models' equivariance properties, with rotations of 45 degrees applied in the XY-plane. Noisy versions of both datasets were also generated to test model robustness.
+\begin{figure}[H]
+    \includegraphics[height=5cm]{}
+\end{figure}
+\newline PIC OF VOXELS
+\subsection{Training Setup}
+We trained four models on these datasets:
+\begin{enumerate}
+    \item Vanilla UNet on striped patterns.
+    \item Equivariant DeconvUNet on striped patterns.
+    \item Vanilla UNet on checkerboard patterns.
+    \item Equivariant DeconvUNet on checkerboard patterns.
+\end{enumerate}
+Each model was trained for 5000 epochs, and the training loss, measured as the mean squared error (MSE), was tracked and plotted to monitor learning progress.
+\newline PIC OF LOSS Curves (on 1000). INCLUDE Reconstructions from 5000 folder for all models (minus noise). 
+
+\subsection{Evaluation}
+\textbf{Reconstruction Accuracy:} 
+The trained models were evaluated on their ability to reconstruct the original, rotated, and noisy patterns. Reconstruction errors were computed as the mean squared error between the input and the reconstructed patterns.
+\newline PIC OF RECONSTRUCTION LOSS
+\textbf{SO(3) Equivariance Error:} 
+To quantify the symmetry-preserving properties of the models, we computed the SO(3) equivariance error using rotated datasets. This error measured the discrepancy between the model's outputs for original and rotated inputs, normalized by the output's magnitude.
+
+\textbf{Visualization of Results:} 
+Reconstruction errors and SO(3) equivariance errors were visualized as bar plots to enable a direct comparison across models and datasets.
+\newline PIC OF EQUIVARIANCE LOSS
+
+\subsection{Latent Space Analysis}
+To examine how the models encode geometric features, we performed a Principal Component Analysis (PCA) on the bottleneck (latent space) representations. Scatter plots of the first two principal components were generated to visualize clustering behavior for different patterns (striped vs. checkerboard).
+PIC OF PCAs
+\subsection{Noise Sensitivity Analysis}
+In addition to evaluating reconstruction and equivariance properties, we conducted a noise sensitivity analysis to compare the robustness of the Vanilla UNet and Equivariant DeconvUNet. This experiment aimed to assess how well each model could reconstruct noisy inputs.
+
+\subsubsection{Noise Types}
+Two types of noise were introduced to the voxel datasets (striped and checkerboard patterns):
+\begin{enumerate}
+    \item \textbf{Gaussian Noise:} Random values sampled from a normal distribution with a mean of 0 and a variance of 0.01 were added to the voxel intensities.
+    \item \textbf{Salt-and-Pepper Noise:} A fraction of the voxel intensities were randomly set to either 0 or 1 to simulate sparsely distributed noise.
+\end{enumerate}
+
+Both types of noise were added separately to the striped and checkerboard datasets. The noisy datasets were fed into the trained Vanilla UNet and Equivariant DeconvUNet models. Reconstruction performance was evaluated by computing the mean squared error (MSE) between the noisy input and the reconstructed output.
+\newline PIC OF Gaussian and SP reconstructions LOSS
+
+
+
+\section{Results and Discussion}
+
+\subsection{Reconstruction Performance}
+The reconstruction loss for the four models—Vanilla UNet and Deconv UNet trained on striped and checkerboard patterns—was evaluated. The results, as shown in Figure X, indicate that the Vanilla UNet performs better compared to the Deconv UNet on the striped dataset and similarly on checkerboard patterns.
+
+Notably, the checkerboard patterns posed a greater challenge for both models, yielding higher reconstruction errors than striped patterns. This aligns with the hypothesis that checkerboards, due to their higher spatial frequency and symmetry complexity, require higher-order irreps for effective encoding and reconstruction.
+
+\subsection{SO(3) Equivariance Error}
+Looking at the plotted SO(3) equivariance error across the models, we see that the Deconv UNet demonstrated superior equivariance compared to the Vanilla UNet for both pattern types, achieving significantly lower errors in the checkerboard task. This highlights the effectiveness of equivariant deconvolution layers in preserving rotational symmetries, particularly for more complex patterns like checkerboards, where rotational symmetry plays a critical role.
+
+\subsection{Latent Space Analysis}
+We plot the PCA of latent spaces for the different models and patterns (FIG ABOVE or here?). The Deconv UNet latent space exhibited a more sparse, cross-like distribution, potentially indicating a preference for disentangling symmetries. In contrast, the Vanilla UNet latent space was denser and less structured. Checkerboard patterns led to more complex latent space structures across models, suggesting that higher spatial frequencies introduce more intricate representations.
+
+\subsection{Noise Sensitivity}
+The robustness of the models to Gaussian and salt-and-pepper noise was tested. The Deconv UNet and the Vanilla UNet have similar performance, with the Vanilla UNe. This robustness underscores the benefits of incorporating equivariant layers, which better preserve the structural integrity of patterns under perturbations.
+
+\section{Conclusion}
+This study demonstrates the effectiveness of equivariant deconvolutions in improving both the reconstruction accuracy and symmetry-preservation of autoencoders for voxel-based patterns. The Deconv UNet outperformed the Vanilla UNet in all experiments, particularly in SO(3)-equivariance, latent space disentanglement, and noise robustness. Checkerboard patterns, due to their symmetry complexity, highlighted the advantages of the equivariant model, suggesting that it can generalize better to high-frequency, intricate spatial features. Future work could explore the application of these models to real-world datasets, such as molecular or material simulations, where symmetry plays a critical role.
+
+\begin{itemize}
+    \item Reconstruction performance varied across models and patterns, with checkerboard patterns generally posing a greater challenge.
+    \item The Equivariant DeconvUNet demonstrated superior equivariance properties compared to the Vanilla UNet.
+    \item Latent space analysis via PCA showed the equivariant deconvolution model had points that separated into a "cross-like" shape with sparser points than the vanilla UNet. This might suggest that the model is effectively separating distinct geometric features (e.g., rotations, orientations) into orthogonal components.
+\end{itemize}
+
+
+\printbibliography
+
+\end{document}
+
+
